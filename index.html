@@ -75,8 +75,14 @@
       gap: 16px;
       margin-bottom: 20px;
     }
+    .grid-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
     @media (max-width: 650px) {
-      .grid { 
+      .grid, .grid-3col { 
         grid-template-columns: 1fr;
         gap: 14px;
       }
@@ -256,16 +262,12 @@
           <label>Matka yhteensä (km)</label>
           <input id="distance" type="number" value="40" step="1" min="0">
         </div>
-        <div class="input-group">
-          <label>ALV %</label>
-          <input id="vat" type="number" value="24" step="1" min="0">
-        </div>
       </div>
     </div>
 
     <div class="card">
       <h2>Ajoneuvokulut per kilometri</h2>
-      <div class="grid">
+      <div class="grid-3col">
         <div class="input-group">
           <label>Polttoaine (€/km)</label>
           <input id="fuel" type="number" value="0.12" step="0.01" min="0">
@@ -286,12 +288,16 @@
           <label>Renkaat (€/km)</label>
           <input id="tires" type="number" value="0.05" step="0.01" min="0">
         </div>
+        <div class="input-group">
+          <label>Kalustokulumat per keikka (€)</label>
+          <input id="equipment" type="number" value="15" step="1" min="0">
+        </div>
       </div>
     </div>
 
     <div class="card">
       <h2>Kiinteät kuukausikulut</h2>
-      <div class="grid">
+      <div class="grid-3col">
         <div class="input-group">
           <label>Työtunnit per kuukausi (keskimäärin)</label>
           <input id="monthlyHours" type="number" value="160" step="1" min="1">
@@ -320,11 +326,11 @@
     </div>
 
     <div class="card">
-      <h2>Kalusto ja muut kulut</h2>
+      <h2>Verot ja vakuutus</h2>
       <div class="grid">
         <div class="input-group">
-          <label>Kalustokulumat per keikka (€)</label>
-          <input id="equipment" type="number" value="15" step="1" min="0">
+          <label>ALV %</label>
+          <input id="vat" type="number" value="24" step="1" min="0">
         </div>
         <div class="input-group">
           <label>YEL-maksu % (yrittäjän eläkevakuutus)</label>
@@ -499,8 +505,6 @@ function render(){
       </div>
     </div>
 
-
-
     <div class="result-card">
       <div class="section-title">Kulujakauma</div>
       <div class="breakdown">
@@ -526,7 +530,7 @@ function render(){
     <div class="line-value" style="font-size:22px; color:${netPerHour > 20 ? 'var(--success)' : netPerHour > 10 ? 'var(--warning)' : 'var(--danger)'};">${euro(netPerHour)}/h</div>
   </div>
   <div class="line line-big" style="border:none; padding-top:0;">
-    <div class="line-label" style="font-size:16px; font-weight:600; color:var(--text);">Netto yhteensä</div>
+    <div class="line-label" style="font-size:16px; font-weight:600; color:var(--text);">Netto yhteensä (${h}h)</div>
     <div class="line-value" style="font-size:24px;">${euro(netAfterTax)}</div>
   </div>
 </div>

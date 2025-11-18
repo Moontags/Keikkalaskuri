@@ -40,7 +40,8 @@
       border-bottom: 2px solid var(--border);
     }
     h1 { 
-      font-size: clamp(42px, 5vw, 32px);
+      /* clamp(min, preferred, max) -> min should be smallest */
+      font-size: clamp(32px, 5vw, 42px);
       font-weight: 700;
       margin-bottom: 8px;
       text-align: center;
@@ -238,6 +239,14 @@
       .btn-group { flex-direction: column; }
       .btn { min-width: 100%; }
     }
+    .error {
+      color: var(--danger);
+      padding: 12px;
+      background: rgba(239,68,68,0.06);
+      border: 1px solid rgba(239,68,68,0.12);
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
   </style>
 </head>
 <body>
@@ -251,15 +260,15 @@
       <h2>Keikkakohtaiset tiedot</h2>
       <div class="grid">
         <div class="input-group">
-          <label>Työtunnit</label>
+          <label for="hours">Työtunnit</label>
           <input id="hours" type="number" value="3" step="0.25" min="0">
         </div>
         <div class="input-group">
-          <label>Tuntihinta (alv 0%)</label>
+          <label for="hourly">Tuntihinta (alv 0%)</label>
           <input id="hourly" type="number" value="95" step="1" min="0">
         </div>
         <div class="input-group">
-          <label>Matka yhteensä (km)</label>
+          <label for="distance">Matka yhteensä (km)</label>
           <input id="distance" type="number" value="40" step="1" min="0">
         </div>
       </div>
@@ -269,27 +278,27 @@
       <h2>Ajoneuvokulut per kilometri</h2>
       <div class="grid-3col">
         <div class="input-group">
-          <label>Polttoaine (€/km)</label>
+          <label for="fuel">Polttoaine (€/km)</label>
           <input id="fuel" type="number" value="0.12" step="0.01" min="0">
         </div>
         <div class="input-group">
-          <label>Vakuutukset (€/km)</label>
+          <label for="insurance">Vakuutukset (€/km)</label>
           <input id="insurance" type="number" value="0.08" step="0.01" min="0">
         </div>
         <div class="input-group">
-          <label>Huollot ja korjaukset (€/km)</label>
+          <label for="maintenance">Huollot ja korjaukset (€/km)</label>
           <input id="maintenance" type="number" value="0.12" step="0.01" min="0">
         </div>
         <div class="input-group">
-          <label>Poistot/rahoitus (€/km)</label>
+          <label for="depreciation">Poistot/rahoitus (€/km)</label>
           <input id="depreciation" type="number" value="0.15" step="0.01" min="0">
         </div>
         <div class="input-group">
-          <label>Renkaat (€/km)</label>
+          <label for="tires">Renkaat (€/km)</label>
           <input id="tires" type="number" value="0.05" step="0.01" min="0">
         </div>
         <div class="input-group">
-          <label>Kalustokulumat per keikka (€)</label>
+          <label for="equipment">Kalustokulumat per keikka (€)</label>
           <input id="equipment" type="number" value="15" step="1" min="0">
         </div>
       </div>
@@ -299,27 +308,27 @@
       <h2>Kiinteät kuukausikulut</h2>
       <div class="grid-3col">
         <div class="input-group">
-          <label>Työtunnit per kuukausi (keskimäärin)</label>
+          <label for="monthlyHours">Työtunnit per kuukausi (keskimäärin)</label>
           <input id="monthlyHours" type="number" value="160" step="1" min="1">
         </div>
         <div class="input-group">
-          <label>Kirjanpito (€/kk)</label>
+          <label for="accounting">Kirjanpito (€/kk)</label>
           <input id="accounting" type="number" value="150" step="10" min="0">
         </div>
         <div class="input-group">
-          <label>Toimisto/varasto (€/kk)</label>
+          <label for="rent">Toimisto/varasto (€/kk)</label>
           <input id="rent" type="number" value="300" step="50" min="0">
         </div>
         <div class="input-group">
-          <label>Liittymät ja ohjelmistot (€/kk)</label>
+          <label for="subscriptions">Liittymät ja ohjelmistot (€/kk)</label>
           <input id="subscriptions" type="number" value="80" step="10" min="0">
         </div>
         <div class="input-group">
-          <label>Vastuuvakuutus (€/kk)</label>
+          <label for="liability">Vastuuvakuutus (€/kk)</label>
           <input id="liability" type="number" value="100" step="10" min="0">
         </div>
         <div class="input-group">
-          <label>Markkinointi (€/kk)</label>
+          <label for="marketing">Markkinointi (€/kk)</label>
           <input id="marketing" type="number" value="200" step="50" min="0">
         </div>
       </div>
@@ -329,15 +338,15 @@
       <h2>Verot ja vakuutus</h2>
       <div class="grid">
         <div class="input-group">
-          <label>ALV %</label>
+          <label for="vat">ALV %</label>
           <input id="vat" type="number" value="24" step="1" min="0">
         </div>
         <div class="input-group">
-          <label>YEL-maksu % (yrittäjän eläkevakuutus)</label>
+          <label for="yel">YEL-maksu % (yrittäjän eläkevakuutus)</label>
           <input id="yel" type="number" value="24.1" step="0.1" min="0">
         </div>
         <div class="input-group">
-          <label>Tulovero % (yrityksen verot)</label>
+          <label for="tax">Tulovero % (yrityksen verot)</label>
           <input id="tax" type="number" value="20" step="1" min="0" max="100">
         </div>
       </div>
@@ -358,45 +367,80 @@
   </div>
 
 <script>
+/* Helper to format euros */
 function formatEuro(n){ 
+  if (!isFinite(n)) return '0,00 €';
   return Number(n).toLocaleString('fi-FI', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   }) + ' €'; 
 }
 
+/* Get elements (explicit, avoids relying on global DOM shortcuts) */
+const hoursEl = document.getElementById('hours');
+const hourlyEl = document.getElementById('hourly');
+const distanceEl = document.getElementById('distance');
+
+const fuelEl = document.getElementById('fuel');
+const insuranceEl = document.getElementById('insurance');
+const maintenanceEl = document.getElementById('maintenance');
+const depreciationEl = document.getElementById('depreciation');
+const tiresEl = document.getElementById('tires');
+const equipmentEl = document.getElementById('equipment');
+
+const monthlyHoursEl = document.getElementById('monthlyHours');
+const accountingEl = document.getElementById('accounting');
+const rentEl = document.getElementById('rent');
+const subscriptionsEl = document.getElementById('subscriptions');
+const liabilityEl = document.getElementById('liability');
+const marketingEl = document.getElementById('marketing');
+
+const vatEl = document.getElementById('vat');
+const yelEl = document.getElementById('yel');
+const taxEl = document.getElementById('tax');
+
+const calcBtn = document.getElementById('calcBtn');
+const resetBtn = document.getElementById('resetBtn');
+const summary = document.getElementById('summary');
+
 function render(){
-  const h = parseFloat(hours.value) || 0;
-  const priceH = parseFloat(hourly.value) || 0;
-  const km = parseFloat(distance.value) || 0;
-  const vatRate = parseFloat(vat.value) || 0;
+  // Read & parse values
+  const h = Math.max(0, parseFloat(hoursEl.value) || 0);
+  const priceH = Math.max(0, parseFloat(hourlyEl.value) || 0);
+  const km = Math.max(0, parseFloat(distanceEl.value) || 0);
+  const vatRate = Math.max(0, parseFloat(vatEl.value) || 0);
 
   // Ajoneuvokulut per km
-  const fuelCost = parseFloat(fuel.value) || 0;
-  const insuranceCost = parseFloat(insurance.value) || 0;
-  const maintenanceCost = parseFloat(maintenance.value) || 0;
-  const depreciationCost = parseFloat(depreciation.value) || 0;
-  const tiresCost = parseFloat(tires.value) || 0;
+  const fuelCost = Math.max(0, parseFloat(fuelEl.value) || 0);
+  const insuranceCost = Math.max(0, parseFloat(insuranceEl.value) || 0);
+  const maintenanceCost = Math.max(0, parseFloat(maintenanceEl.value) || 0);
+  const depreciationCost = Math.max(0, parseFloat(depreciationEl.value) || 0);
+  const tiresCost = Math.max(0, parseFloat(tiresEl.value) || 0);
   const kmCostTotal = fuelCost + insuranceCost + maintenanceCost + depreciationCost + tiresCost;
 
   // Kiinteät kk-kulut
-  const monthlyH = parseFloat(monthlyHours.value) || 1;
-  const accountingCost = parseFloat(accounting.value) || 0;
-  const rentCost = parseFloat(rent.value) || 0;
-  const subscriptionsCost = parseFloat(subscriptions.value) || 0;
-  const liabilityCost = parseFloat(liability.value) || 0;
-  const marketingCost = parseFloat(marketing.value) || 0;
+  const monthlyH = Math.max(1, parseFloat(monthlyHoursEl.value) || 1);
+  const accountingCost = Math.max(0, parseFloat(accountingEl.value) || 0);
+  const rentCost = Math.max(0, parseFloat(rentEl.value) || 0);
+  const subscriptionsCost = Math.max(0, parseFloat(subscriptionsEl.value) || 0);
+  const liabilityCost = Math.max(0, parseFloat(liabilityEl.value) || 0);
+  const marketingCost = Math.max(0, parseFloat(marketingEl.value) || 0);
   
   const totalMonthlyCosts = accountingCost + rentCost + subscriptionsCost + liabilityCost + marketingCost;
   const monthlyCostPerHour = totalMonthlyCosts / monthlyH;
 
   // Kalusto
-  const equipmentCost = parseFloat(equipment.value) || 0;
-  const equipmentPerHour = equipmentCost / h;
+  const equipmentCost = Math.max(0, parseFloat(equipmentEl.value) || 0);
 
   // Verot
-  const yelRate = parseFloat(yel.value) || 0;
-  const taxRate = parseFloat(tax.value) || 0;
+  const yelRate = Math.max(0, parseFloat(yelEl.value) || 0);
+  const taxRate = Math.max(0, parseFloat(taxEl.value) || 0);
+
+  // Basic validations
+  if (h <= 0) {
+    summary.innerHTML = `<div class="error">Anna työtunnit (vähintään 0.25 h).</div>`;
+    return;
+  }
 
   // Laskutus
   const workIncome = h * priceH;
@@ -412,12 +456,12 @@ function render(){
   // Nettotulo ennen veroja ja YEL:iä
   const netBeforeTaxYel = workIncome - totalCosts;
 
-  // YEL-maksu
-  const yelAmount = netBeforeTaxYel * (yelRate / 100);
+  // YEL-maksu (simple proportional approach) — note: todellisuudessa YEL lasketaan ansiotulosta / ilmoitetusta työtulosta
+  const yelAmount = Math.max(0, netBeforeTaxYel * (yelRate / 100));
 
   // Verotettava tulo
   const taxableIncome = netBeforeTaxYel - yelAmount;
-  const taxAmount = taxableIncome * (taxRate / 100);
+  const taxAmount = Math.max(0, taxableIncome * (taxRate / 100));
 
   // Käteen jäävä
   const netAfterTax = taxableIncome - taxAmount;
@@ -431,14 +475,18 @@ function render(){
   // Kulujakauma per tunti
   const carCostPerHour = totalCarCost / h;
   const fixedCostPerHour = totalFixedCosts / h;
-  
+  const equipmentPerHour = totalEquipmentCost / h;
+
   const euro = formatEuro;
+
+  // Format priceH without euro sign for the small label (show with 2 decimals)
+  const priceHLabel = Number(priceH).toLocaleString('fi-FI', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   summary.innerHTML = `
     <div class="result-card">
       <div class="section-title">Laskutus</div>
       <div class="line">
-        <div class="line-label">Tyotulot (${h} h x ${euro(priceH).replace(' €', '')}/h)</div>
+        <div class="line-label">Työtulot (${h} h x ${priceHLabel} €/h)</div>
         <div class="line-value">${euro(workIncome)}</div>
       </div>
       <div class="line">
@@ -452,10 +500,10 @@ function render(){
     </div>
 
     <div class="result-card">
-      <div class="section-title">Kulut yhteensa</div>
+      <div class="section-title">Kulut yhteensä</div>
       
       <div class="line">
-        <div class="line-label">Ajoneuvo (${km} km x ${euro(kmCostTotal).replace(' €', '')}/km)</div>
+        <div class="line-label">Ajoneuvo (${km} km x ${Number(kmCostTotal).toLocaleString('fi-FI', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €/km)</div>
         <div class="line-value">${euro(totalCarCost)}</div>
       </div>
       <div class="breakdown">
@@ -467,13 +515,13 @@ function render(){
       </div>
 
       <div class="line">
-        <div class="line-label">Kiinteat kulut (${h} h x ${euro(monthlyCostPerHour).replace(' €', '')}/h)</div>
+        <div class="line-label">Kiinteät kulut (${h} h x ${Number(monthlyCostPerHour).toLocaleString('fi-FI', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €/h)</div>
         <div class="line-value">${euro(totalFixedCosts)}</div>
       </div>
       <div class="breakdown">
         <div class="breakdown-item"><span>• Kirjanpito</span><span class="value">${euro(accountingCost * h / monthlyH)}</span></div>
         <div class="breakdown-item"><span>• Toimisto/varasto</span><span class="value">${euro(rentCost * h / monthlyH)}</span></div>
-        <div class="breakdown-item"><span>• Liittymat</span><span class="value">${euro(subscriptionsCost * h / monthlyH)}</span></div>
+        <div class="breakdown-item"><span>• Liittymät</span><span class="value">${euro(subscriptionsCost * h / monthlyH)}</span></div>
         <div class="breakdown-item"><span>• Vastuuvakuutus</span><span class="value">${euro(liabilityCost * h / monthlyH)}</span></div>
         <div class="breakdown-item"><span>• Markkinointi</span><span class="value">${euro(marketingCost * h / monthlyH)}</span></div>
       </div>
@@ -484,7 +532,7 @@ function render(){
       </div>
 
       <div class="line line-warning">
-        <div class="line-label"><strong>Kulut yhteensa</strong></div>
+        <div class="line-label"><strong>Kulut yhteensä</strong></div>
         <div class="line-value"><strong>${euro(totalCosts)}</strong></div>
       </div>
     </div>
@@ -500,8 +548,16 @@ function render(){
         <div class="line-value">${euro(yelAmount)}</div>
       </div>
       <div class="line">
+        <div class="line-label">Verotettava tulo</div>
+        <div class="line-value">${euro(taxableIncome)}</div>
+      </div>
+      <div class="line">
         <div class="line-label">Tulovero ${taxRate}%</div>
         <div class="line-value">${euro(taxAmount)}</div>
+      </div>
+      <div class="line line-big">
+        <div class="line-label"><strong>Käteen jää</strong></div>
+        <div class="line-value"><strong>${euro(netAfterTax)}</strong></div>
       </div>
     </div>
 
@@ -509,7 +565,7 @@ function render(){
       <div class="section-title">Kulujakauma</div>
       <div class="breakdown">
         <div class="breakdown-item"><span>Ajoneuvokulut</span><span class="value">${euro(carCostPerHour)}/h</span></div>
-        <div class="breakdown-item"><span>Kiinteat kulut</span><span class="value">${euro(fixedCostPerHour)}/h</span></div>
+        <div class="breakdown-item"><span>Kiinteät kulut</span><span class="value">${euro(fixedCostPerHour)}/h</span></div>
         <div class="breakdown-item"><span>Kalusto</span><span class="value">${euro(equipmentPerHour)}/h</span></div>
         <div class="breakdown-item"><span>YEL-maksu</span><span class="value">${euro(yelPerHour)}/h</span></div>
         <div class="breakdown-item"><span>Verot</span><span class="value">${euro(taxPerHour)}/h</span></div>
@@ -523,48 +579,56 @@ function render(){
         </div>
       </div>
 
-       <div class="highlight">
-  <div class="section-title" style="margin-top:0; border:none;">Lopputulos</div>
-  <div class="line" style="border:none; padding-top:0;">
-    <div class="line-label" style="font-size:16px; font-weight:600; color:var(--text);">Netto/h</div>
-    <div class="line-value" style="font-size:20px; color:${netPerHour > 20 ? 'var(--success)' : netPerHour > 10 ? 'var(--warning)' : 'var(--danger)'};">${euro(netPerHour)}/h</div>
-  </div>
-  <div class="line" style="border:none; padding-top:8px;">
-    <div class="line-label" style="font-size:16px; font-weight:600; color:var(--text);">Netto yhteensä (${h}h)</div>
-    <div class="line-value" style="font-size:24px;">${euro(netAfterTax)}</div>
-  </div>
-</div>
+      <div class="highlight">
+        <div class="section-title" style="margin-top:0; border:none;">Lopputulos</div>
+        <div class="line" style="border:none; padding-top:0;">
+          <div class="line-label" style="font-size:16px; font-weight:600; color:var(--text);">Netto/h</div>
+          <div class="line-value" style="font-size:20px; color:${netPerHour > 20 ? 'var(--success)' : netPerHour > 10 ? 'var(--warning)' : 'var(--danger)'};">${euro(netPerHour)}/h</div>
+        </div>
+        <div class="line" style="border:none; padding-top:8px;">
+          <div class="line-label" style="font-size:16px; font-weight:600; color:var(--text);">Netto yhteensä (${h} h)</div>
+          <div class="line-value" style="font-size:24px;">${euro(netAfterTax)}</div>
+        </div>
+      </div>
     </div>
   `;
 }
 
-calcBtn.onclick = render;
-resetBtn.onclick = () => { 
-  hours.value = 3;
-  hourly.value = 95;
-  distance.value = 40;
-  vat.value = 24;
-  fuel.value = 0.12;
-  insurance.value = 0.08;
-  maintenance.value = 0.12;
-  depreciation.value = 0.15;
-  tires.value = 0.05;
-  monthlyHours.value = 160;
-  accounting.value = 150;
-  rent.value = 300;
-  subscriptions.value = 80;
-  liability.value = 100;
-  marketing.value = 200;
-  equipment.value = 15;
-  yel.value = 24.1;
-  tax.value = 20;
-  render();
-};
+/* Attach event listeners */
+calcBtn.addEventListener("click", render);
+resetBtn.addEventListener("click", () => {
+  // Reset to defaults
+  hoursEl.value = 3;
+  hourlyEl.value = 95;
+  distanceEl.value = 40;
 
+  fuelEl.value = 0.12;
+  insuranceEl.value = 0.08;
+  maintenanceEl.value = 0.12;
+  depreciationEl.value = 0.15;
+  tiresEl.value = 0.05;
+  equipmentEl.value = 15;
+
+  monthlyHoursEl.value = 160;
+  accountingEl.value = 150;
+  rentEl.value = 300;
+  subscriptionsEl.value = 80;
+  liabilityEl.value = 100;
+  marketingEl.value = 200;
+
+  vatEl.value = 24;
+  yelEl.value = 24.1;
+  taxEl.value = 20;
+
+  render();
+});
+
+/* Re-render on any input change */
 document.querySelectorAll('input').forEach(input => {
   input.addEventListener('input', render);
 });
 
+/* Initial render */
 render();
 </script>
 
